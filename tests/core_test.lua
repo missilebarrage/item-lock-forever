@@ -27,6 +27,7 @@ describe("Loading", function()
 		expect(toc.SavedVariables).toBe("ItemLockForeverDB")
 		expect(toc.IconAtlas).toBe("QuestSharing-Padlock")
 		expect(toc.Version).toBe("@project-version@")
+		expect(toc["X-Curse-Project-ID"]).toBe("1751300")
 	end)
 
 	it("binds the key binding to the global the addon defines", function()
