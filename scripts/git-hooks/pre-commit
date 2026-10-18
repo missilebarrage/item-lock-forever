@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Blocks commits that would publish personal data: runs the distribution/privacy check and
+# makes sure the commit uses the anonymous identity and a UTC timestamp.
+# Enable with: git config core.hooksPath scripts/git-hooks
+set -euo pipefail
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT"
+
+name="$(git config user.name || true)"
+email="$(git config user.email || true)"
+if [[ "$name" != "Tim" || "$email" != *noreply* ]]; then
+	echo "pre-commit: set the repository identity to Tim with a noreply e-mail first." >&2
+	exit 1
+fi
+if [[ "$(date +%z)" != "+0000" ]]; then
+	echo "pre-commit: commit with TZ=UTC so the timestamp doesn't reveal a time zone." >&2
+	exit 1
+fi
+scripts/check-dist.sh

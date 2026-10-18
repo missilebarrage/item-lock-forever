@@ -1,0 +1,26 @@
+## Interface: 16001
+## Title: ItemLockForever
+## Notes: Alt+Click an item to lock it. Locked items can't be sold, destroyed or disenchanted.
+## Author: Tim
+## Version: @project-version@
+## IconAtlas: QuestSharing-Padlock
+## SavedVariables: ItemLockForeverDB
+## OptionalDeps: EllesmereUIBags
+## X-License: MIT
+
+Core\Namespace.lua
+Locales\enUS.lua
+Core\Events.lua
+Core\Database.lua
+Core\Sounds.lua
+Core\Locks.lua
+Features\Input.lua
+Features\Feedback.lua
+Features\Holds.lua
+Features\Merchant.lua
+Features\Disenchant.lua
+Features\Destroy.lua
+UI\Tooltip.lua
+UI\Badges.lua
+UI\Options.lua
+Init.lua

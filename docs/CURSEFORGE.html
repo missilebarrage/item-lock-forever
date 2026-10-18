@@ -1,0 +1,42 @@
+<!-- The CurseForge project description. Paste into the description editor's source (HTML) view. -->
+<p><strong>ItemLockForever</strong> stops you from selling, destroying or disenchanting the items you want to keep. Alt+Click an item to lock it, Alt+Click it again to unlock it. That's it.</p>
+<p>Made for <strong>World of Warcraft: Forever</strong>. There's nothing to set up, and it works with the default bags and with bag addons built on Blizzard's item buttons.</p>
+<h2>Features</h2>
+<ul>
+<li><strong>Alt+Click to lock</strong> &mdash; in your bags, the bank or the character window. A padlock marks locked items, and their tooltip says they're locked. You can pick another click, or use a key binding instead.</li>
+<li><strong>Can't be sold</strong> &mdash; at a vendor, locked items are held with the game's own item lock (they show greyed out), so right-clicking or dragging them does nothing. If something still sells one, like the Sell All Junk button, it's bought back straight away.</li>
+<li><strong>Can't be destroyed</strong> &mdash; dropping a locked item outside your bags puts it back in its slot instead of asking to destroy it.</li>
+<li><strong>Can't be disenchanted</strong> &mdash; while Disenchant waits for you to pick an item, locked items are held too, so clicking one does nothing. Enchants, poisons and other spells still work on locked items.</li>
+<li><strong>Tells you why</strong> &mdash; trying any of that on a locked item shows red error text and plays an error sound you can choose (or turn off).</li>
+<li><strong>Gear is locked as that exact item</strong> &mdash; a second copy of the same sword stays sellable, and the lock follows the item if you mail it to an alt.</li>
+<li><strong>Stacks are locked one at a time</strong> &mdash; locked items keep their lock when stacks merge or split, and when you sort your bags.</li>
+<li><strong>Every stack at once</strong> &mdash; in EllesmereUI Bags' All Items view, where one button stands for all your stacks of an item, Alt+Click locks or unlocks every stack, including stacks you pick up later.</li>
+<li><strong>Hold to unlock</strong> (optional) &mdash; unlocking takes holding the click for a second, so a stray click can't unlock anything.</li>
+</ul>
+<h2>Commands and options</h2>
+<table>
+<thead><tr><th>Command</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td><code>/ilf</code></td><td>Open the options (<code>/itemlock</code> works too)</td></tr>
+<tr><td><code>/ilf debug</code></td><td>Show what the addon does at vendors, for bug reports</td></tr>
+</tbody></table>
+<p>In <strong>Esc &gt; Options &gt; AddOns &gt; ItemLockForever</strong>:</p>
+<ul>
+<li>The click that locks items: Alt + Left Click (default), Alt + Right Click, Ctrl + Alt + Right Click, Ctrl + Right Click, or off</li>
+<li>Hold to unlock</li>
+<li>A key binding that locks or unlocks the item under the mouse (also under Key Bindings)</li>
+<li>The lock, unlock and error sounds, or none</li>
+<li>The padlock's corner and size</li>
+</ul>
+<h2>Good to know</h2>
+<ul>
+<li>While a vendor window is open, or Disenchant waits for a target, locked items can't be used, equipped or moved either. Unlock an item (or leave the vendor) to use it.</li>
+<li>The buy-back can only reach the vendor's buyback list, which holds your last 12 sales.</li>
+<li>Locks protect against selling, destroying and disenchanting. Mailing and trading still work, and addons that delete items themselves (without the game's destroy dialog) aren't stopped.</li>
+<li>At the Auction House the click is left to Auctionator, which uses Alt+Click to pick items to post. The key binding still works there.</li>
+</ul>
+<h2>Privacy</h2>
+<p>Your locks and settings are stored on your computer, in WoW's saved variables. ItemLockForever sends nothing anywhere. <code>/ilf debug</code> prints only item IDs and counts, so it's safe to share.</p>
+<h2>Feedback</h2>
+<p>Bugs and ideas are welcome: open an issue on <a href="https://github.com/missilebarrage/item-lock-forever/issues">GitHub</a> or leave a comment here.</p>
+<p>ItemLockForever is open source under the MIT license. It isn't affiliated with Blizzard Entertainment or EllesmereUI.</p>

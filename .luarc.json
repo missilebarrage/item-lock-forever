@@ -1,0 +1,19 @@
+{
+  "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
+  "runtime.version": "Lua 5.1",
+  "workspace.checkThirdParty": false,
+  "workspace.ignoreDir": [".tools", ".release"],
+  "diagnostics.globals": [
+    "ItemLockForeverDB",
+    "SLASH_ITEMLOCKFOREVER1",
+    "SLASH_ITEMLOCKFOREVER2",
+    "BINDING_NAME_ITEMLOCKFOREVER_TOGGLE",
+    "ItemLockForever_ToggleHovered",
+    "describe",
+    "it",
+    "expect",
+    "Harness",
+    "ROOT_DIR",
+    "HARNESS_DIR"
+  ]
+}

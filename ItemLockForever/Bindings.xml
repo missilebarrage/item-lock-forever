@@ -1,0 +1,5 @@
+<Bindings>
+	<Binding name="ITEMLOCKFOREVER_TOGGLE" runOnUp="true" category="ItemLockForever">
+		ItemLockForever_ToggleHovered(keystate)
+	</Binding>
+</Bindings>
