@@ -1,5 +1,6 @@
--- Fake third-party addons: EllesmereUI Bags' overlay API and buttons, and an auto-seller that
--- acts on MERCHANT_SHOW before this addon does (like EllesmereUI QoL's "sell junk").
+-- Fake third-party addons: EllesmereUI Bags' overlay API and buttons, Baganator's corner widget
+-- API and buttons, and an auto-seller that acts on MERCHANT_SHOW before this addon does (like
+-- EllesmereUI QoL's "sell junk").
 local Addons = {}
 
 local Widgets, Blizzard -- shared with the loader (Addons.Init)
@@ -23,6 +24,28 @@ function Addons.Install(world, env)
 			end
 		end
 		env.EUI_Bags = api
+	end
+	if options.baganator then
+		world.loadedAddons.Baganator = true
+		world.baganator = { widgets = {}, refreshes = {}, plugins = {} }
+		env.Baganator = {
+			API = {
+				RegisterCornerWidget = function(label, id, onUpdate, onInit, defaultPosition, isFast)
+					assert(id and label and onUpdate and onInit and not world.baganator.widgets[id])
+					world.baganator.widgets[id] = {
+						label = label,
+						onUpdate = onUpdate,
+						onInit = onInit,
+						defaultPosition = defaultPosition,
+						isFast = isFast,
+					}
+				end,
+				RequestItemButtonsRefresh = function(reasons)
+					world.baganator.refreshes[#world.baganator.refreshes + 1] = reasons
+				end,
+			},
+			Constants = { RefreshReason = { ItemWidgets = 4, Searches = 16 } },
+		}
 	end
 	if options.autoSeller then
 		Addons.InstallAutoSeller(world, env, options.autoSeller)
@@ -52,6 +75,82 @@ end
 --- EllesmereUI painting a placeholder slot (bag 0, slot 0, no item).
 function Addons.PaintEllesmerePlaceholder(world, button)
 	world.env.EUI_Bags.RunItemOverlays(button, { bag = 0, slot = 0 })
+end
+
+--- A Baganator item button (Baganator keeps the item's details in its BGR field).
+function Addons.NewBaganatorButton(world)
+	local button = Widgets.Create(world, "ItemButton", nil, world.env.UIParent)
+	button.BGR = {}
+	return Blizzard.Seal(button)
+end
+
+-- The fields Baganator 856 puts in BGR before its corner widgets run: Syndicator's
+-- Search.GetBaseInfo, then GetInfo and the live container button's early callback
+-- (ItemViewCommon/ItemButton.lua). There is no bagID or slotID: the slot is in itemLocation.
+-- Reading any other field fails the test, so the addon can't rely on details Baganator never
+-- gives.
+local BGR_FIELDS = {}
+for _, key in ipairs({
+	"itemLink",
+	"itemID",
+	"quality",
+	"itemCount",
+	"isBound",
+	"hasLoot",
+	"tooltipGetter",
+	"earlyCallback",
+	"finalCallback",
+	"bagType",
+	"guid",
+	"setInfo",
+	"itemLocation",
+	"hasNoValue",
+}) do
+	BGR_FIELDS[key] = true
+end
+local STRICT_BGR = {
+	__index = function(_, key)
+		if not BGR_FIELDS[key] then
+			error("Baganator never sets BGR." .. tostring(key), 2)
+		end
+	end,
+}
+
+--- Baganator showing an item the way its live container buttons do: BGR starts as Syndicator's
+--- base info, the early callback adds the GUID and item location ({ bagID, slotIndex }) while
+--- the slot holds the item, then the corner widgets run. Baganator creates the widget once and
+--- shows it when the update says so. options.grouped: the total count of a "Group identical
+--- items" button (the button's slot is its first stack); options.offline: a cached view (another
+--- character, a bank you aren't at), which has no live slot.
+function Addons.PaintBaganator(world, button, bagID, slot, options)
+	options = options or {}
+	local widget = world.baganator.widgets.itemlockforever_padlock
+	local item = world.bags[bagID][slot]
+	local details = setmetatable({
+		itemLink = world:Link(item),
+		itemID = item.id,
+		quality = 1,
+		itemCount = options.grouped or item.count or 1,
+		isBound = false,
+		hasLoot = false,
+		tooltipGetter = function() end,
+		bagType = 0,
+	}, STRICT_BGR)
+	if not options.offline then
+		details.guid = item.guid
+		details.itemLocation = { bagID = bagID, slotIndex = slot }
+	end
+	button.BGR = details
+	local corner = world.baganator.plugins[button]
+	if not corner then
+		corner = widget.onInit(button)
+		world.baganator.plugins[button] = corner
+	end
+	corner:Hide()
+	if widget.onUpdate(corner, details) then
+		corner:Show()
+	end
+	return corner
 end
 
 --- An addon loaded before this one that sells junk when a vendor opens. mode "useContainer"

@@ -150,6 +150,35 @@ to `Interface/AddOns/`. "Unverified" means only the game can confirm it: see VER
 - Item buttons click on mouse up, after the hold: the click that ends a finished hold is ignored
   so it doesn't lock the item again.
 
+## Baganator
+
+From Baganator's public source (release 834, 2026-10-08, TOC Interface lists 16001), read in a mirror
+(github.com/hippuli/Baganator), and rechecked in release 856 as installed on Forever (2026-11-14):
+
+- `Baganator.API.RegisterCornerWidget(label, id, onUpdate, onInit, defaultPosition, isFast)`
+  (`API/Main.lua` ~229). `onInit(itemButton)` returns the frame or texture to show; Baganator
+  re-parents it, places it in the corner its settings give the widget and shows it when
+  `onUpdate(widget, details)` returns true (false hides, nil means "not ready, ask again").
+  `defaultPosition = {corner, priority}` is applied once per widget id. Only the first widget of a
+  corner that shows is displayed. Default corners: top left junk + item level, top right empty,
+  bottom left equipment set, bottom right quantity (`Core/Config.lua` 46-49).
+- `details` is the button's `BGR` table, built by `GetInfo` (`ItemViewCommon/ItemButton.lua` ~192):
+  Syndicator's `Search.GetBaseInfo` (`itemLink`, `itemID`, `quality`, `itemCount`, `isBound`,
+  `hasLoot`, `tooltipGetter`; `Syndicator/Search/BaseInfo.lua`), then the live container button's
+  early callback, which runs before the widgets and adds `guid` and
+  `itemLocation = {bagID, slotIndex}` while the slot holds the item (`ItemButton.lua` ~675-681,
+  and ~1241 for the classic button). **`BGR` has no `bagID` or `slotID`**: those are fields of the
+  category views' item lists (`CategoryViews/BagLayout.lua` ~66-76), not of the button's details.
+  Reading them made the 0.2.0 padlock never show (found in UAT). Offline views (other characters,
+  the bank when away) use cached buttons without `itemLocation`.
+- "Group identical items" (`category_item_grouping`, on by default) folds identical items into the
+  first one's entry and adds up `itemCount` (`CategoryViews/BagLayout.lua` ~205-220): a button
+  stands for several stacks when its `itemCount` is larger than its slot's stack. Grouping is off in
+  live views while items are being transferred (bank, mail, vendor).
+- `Baganator.API.RequestItemButtonsRefresh({Baganator.Constants.RefreshReason.ItemWidgets})`
+  re-runs the widgets on the next frame. Its own icon widgets are textures created on the item
+  button (`API/ItemButton.lua` ~307-322).
+
 ## Options and key binding
 
 - `CreateKeybindingEntryInitializer(bindingIndex, search)`
@@ -157,6 +186,10 @@ to `Interface/AddOns/`. "Unverified" means only the game can confirm it: see VER
   adds one to a normal settings page the same way (`Blizzard_SettingsDefinitions_Frame/Controls.lua`
   89-94). `C_KeyBindings.GetBindingIndex(action)` is documented. The settings panel saves
   bindings when it closes (`Blizzard_Settings_Shared/Blizzard_SettingsPanel.lua:224-239`).
+- `Settings.CreateColorSwatch(category, setting, tooltip)` (`Blizzard_Settings_Shared/Blizzard_Settings.lua:398`)
+  is the game's color picker row: its setting holds an `AARRGGBB` hex string, read with
+  `CreateColorFromHexString` and written with `GenerateHexColor` (`Blizzard_SettingControls.lua`
+  ~1054-1112). Build 1.60.1.70938.
 - `Bindings.xml` in the addon folder is loaded by the client without being listed in the TOC. The
   key binding page groups bindings by their `category` attribute, shown as `_G[category]` when
   that's a string, else the text itself.

@@ -62,6 +62,7 @@ Database.DEFAULTS = {
 	errorSound = "error",
 	iconCorner = "TOPRIGHT",
 	iconSize = 14,
+	iconColor = "ffffffff", -- white: the padlock's own colors
 }
 
 --- Allowed values of the settings that are a choice.
@@ -76,6 +77,11 @@ Database.CHOICES = {
 --- Allowed ranges of whole-number settings.
 Database.RANGES = {
 	iconSize = { 8, 32 },
+}
+
+--- Settings that are text in a fixed format.
+Database.PATTERNS = {
+	iconColor = "^%x%x%x%x%x%x%x%x$", -- AARRGGBB, as the options' color picker writes it
 }
 
 -- Numbered migrations: MIGRATIONS[n] upgrades data from schema n - 1 to n.
@@ -101,6 +107,10 @@ local function IsValid(key, value)
 	local range = Database.RANGES[key]
 	if range then
 		return value >= range[1] and value <= range[2] and value == math.floor(value)
+	end
+	local pattern = Database.PATTERNS[key]
+	if pattern then
+		return value:match(pattern) ~= nil
 	end
 	return true
 end
@@ -196,11 +206,14 @@ function Database.Get(key)
 end
 
 --- Stores a setting and notifies listeners with ILF_SETTINGS_CHANGED(key, value). Whole-number
---- settings are rounded (sliders can hand over 13.999...); invalid values are refused.
+--- settings are rounded (sliders can hand over 13.999...) and hex colors lowercased; invalid
+--- values are refused.
 ---@return boolean stored
 function Database.Set(key, value)
 	if Database.RANGES[key] and type(value) == "number" then
 		value = math.floor(value + 0.5)
+	elseif Database.PATTERNS[key] and type(value) == "string" then
+		value = value:lower()
 	end
 	if not IsValid(key, value) then
 		return false

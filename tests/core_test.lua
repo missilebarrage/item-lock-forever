@@ -75,6 +75,7 @@ describe("Database", function()
 			errorSound = "error",
 			iconCorner = "TOPRIGHT",
 			iconSize = 14,
+			iconColor = "ffffffff",
 		})
 		expect(db.items).toEqual({})
 		expect(type(db.stacks)).toBe("table")
@@ -107,6 +108,7 @@ describe("Database", function()
 			errorSound = "error",
 			iconCorner = "TOPRIGHT",
 			iconSize = 14,
+			iconColor = "ffffffff",
 		})
 		expect(db.items).toEqual({ ["Item-1-0-00000001"] = 2000 })
 		expect(db.stacks).toEqual({ ["Player-1-0000AAAA"] = { [2589] = true } })
@@ -305,6 +307,18 @@ describe("Options", function()
 		expect(size.options.labelType).toBe(2)
 		size:SetValue(23.9999)
 		expect(size:GetValue()).toBe(24)
+	end)
+
+	it("offers the padlock color as a color picker, white by default", function()
+		local world, ns = Harness.Boot()
+		local color = Category(world).settings.iconColor
+		expect(color.control).toBe("colorSwatch")
+		expect(color.default).toBe("ffffffff")
+		color:SetValue("FFFFD100")
+		expect(ns.Database.Get("iconColor")).toBe("ffffd100")
+		expect(ns.Database.Set("iconColor", "gold")).toBe(false)
+		expect(ns.Database.Set("iconColor", "ffd100")).toBe(false)
+		expect(ns.Database.Get("iconColor")).toBe("ffffd100")
 	end)
 
 	it("gives every sound a different game sound", function()

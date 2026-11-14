@@ -89,6 +89,16 @@ Fallback: if clicks don't toggle reliably, also check that the mouse button is s
 Fallback: if All Items clicks lock one stack only, EllesmereUI changed how it marks combined
 stacks (`_mergedCount`).
 
+## 6b. Baganator and the padlock color (0.2.0)
+
+1. With Baganator (and Syndicator) installed, lock an item: Baganator shows the padlock in the
+   corner Lock icon corner had when Baganator first saw the padlock (top right by default). In
+   Baganator's Customise > Icons, the "ItemLockForever padlock" widget can move to another corner.
+2. In Baganator's category view with "Group identical items" on, Alt+Click a grouped stack: "Locked
+   every stack of …", and the padlock shows. Alt+Click a single stack in its bag view: one stack.
+3. Pick a gold color in Lock icon color: every padlock turns gold at once (Blizzard bags,
+   EllesmereUI Bags, Baganator, character window). White brings back the padlock's own colors.
+
 ## 7. Options and key binding
 
 Hold to unlock (turn it on first):
@@ -146,3 +156,6 @@ Fallback: move the padlock to another corner.
 ## Results
 
 - 2026-10-17, build 1.60.1.70450: user acceptance test passed ("everything is working well"). Sections weren't reported one by one.
+- 2026-11-14, build 1.60.1.70938 (live), Baganator 856: 0.2.0 user acceptance test passed ("works now").
+  The first try showed no padlock in Baganator (the widget read button details Baganator doesn't
+  have); fixed before the release. Sections weren't reported one by one.

@@ -77,6 +77,7 @@ files["ItemLockForever/**/*.lua"] = {
 		"UnitGUID",
 		-- Optional addons.
 		"EUI_Bags",
+		"Baganator",
 	},
 }
 

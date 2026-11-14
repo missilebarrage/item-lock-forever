@@ -28,6 +28,11 @@ Widgets.Define("GetOwner", function(self)
 	return self.owner
 end)
 
+-- Textures: desaturation is recorded (the widget fakes treat it as a no-op).
+Widgets.Define("SetDesaturated", function(self, desaturated)
+	self.desaturated = desaturated == true
+end)
+
 -- Cooldown frames.
 Widgets.Define("SetHideCountdownNumbers SetDrawBling SetDrawEdge SetSwipeColor SetReverse")
 Widgets.Define("SetCooldown", function(self, start, duration)
@@ -371,6 +376,10 @@ function Wow.CreateEnvironment(world)
 		end,
 		CreateCheckbox = function(_, setting, tooltip)
 			setting.control = "checkbox"
+			setting.tooltip = tooltip
+		end,
+		CreateColorSwatch = function(_, setting, tooltip)
+			setting.control = "colorSwatch"
 			setting.tooltip = tooltip
 		end,
 		CreateSlider = function(_, setting, sliderOptions, tooltip)

@@ -2,7 +2,7 @@ local _, ns = ...
 
 --- Esc > Options > AddOns > ItemLockForever: the click that locks items, Hold to unlock, the key
 --- binding (the same one as on the Key Bindings page; the game saves bindings when the panel
---- closes), the lock, unlock and error sounds, and the padlock's corner and size.
+--- closes), the lock, unlock and error sounds, and the padlock's corner, size and color.
 ---@class ItemLockForeverOptions
 local Options = ns.Options
 local Database = ns.Database
@@ -81,6 +81,9 @@ local function Build(layout)
 	sizes:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
 	local size = Register("iconSize", Settings.VarType.Number, L.OPTION_ICON_SIZE)
 	Settings.CreateSlider(category, size, sizes, L.OPTION_ICON_SIZE_TOOLTIP)
+	-- The game's own color picker, with an AARRGGBB hex string as its value.
+	local color = Register("iconColor", Settings.VarType.String, L.OPTION_ICON_COLOR)
+	Settings.CreateColorSwatch(category, color, L.OPTION_ICON_COLOR_TOOLTIP)
 end
 
 -- Picking a sound plays it, so you hear what you chose. The Defaults button changes several at

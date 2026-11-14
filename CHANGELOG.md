@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0 — 2026-11-14
+
+- Baganator: locked items show the padlock. It starts in the Lock icon corner; after that,
+  Baganator's own icon settings (Customise > Icons) place it. Alt+Click on a "Group identical
+  items" button locks every stack.
+- Lock icon color: pick any color for the padlock, like gold (white keeps its own colors).
+
 ## 0.1.0 — 2026-10-17
 
 First version.

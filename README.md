@@ -13,10 +13,10 @@ Lock your items so they can't be sold to a vendor, destroyed or disenchanted by 
 - **Stacks are locked one at a time** in Blizzard's bags, OneBag/MultiBag views, the bank and the
   character window. Locked items keep their lock when stacks merge or split: merging a locked
   stack into another locks that one, and both halves of a split stay locked.
-- **Every stack at once** from EllesmereUI Bags' All Items (and category) views, where one button
-  stands for all your stacks of an item: Alt+Click there locks or unlocks every stack, including
-  stacks you pick up later (per character). You can still unlock one of those stacks on its own
-  in a normal view.
+- **Every stack at once** from EllesmereUI Bags' All Items (and category) views and Baganator's
+  "Group identical items", where one button stands for all your stacks of an item: Alt+Click
+  there locks or unlocks every stack, including stacks you pick up later (per character). You can
+  still unlock one of those stacks on its own in a normal view.
 - **Can't be sold.** While a vendor is open, locked items are held with the game's own item lock
   (they show greyed out): right-clicking or dragging them does nothing, and auto-sellers that
   respect the game's lock leave them alone. If something still sells one, like the Sell All Junk
@@ -28,8 +28,9 @@ Lock your items so they can't be sold to a vendor, destroyed or disenchanted by 
   enchants and poisons, still work on locked items.
 - **Tells you why.** Trying to sell, disenchant or destroy a locked item shows red error text
   ("… is locked, so it can't be sold.") and plays an error sound you can choose (or turn off).
-- **Easy to see.** A padlock marks locked items in Blizzard's bags, bank and character window and
-  in EllesmereUI Bags, and the item tooltip says "Locked" whatever bag addon you use.
+- **Easy to see.** A padlock marks locked items in Blizzard's bags, bank and character window, in
+  EllesmereUI Bags and in Baganator, and the item tooltip says "Locked" whatever bag addon you
+  use. Its corner, size and color are up to you.
 - **No setup.** Works with the default UI and with bag addons built on Blizzard's item buttons.
 
 ## Commands and options
@@ -53,8 +54,11 @@ Lock your items so they can't be sold to a vendor, destroyed or disenchanted by 
   plays it.
 - **Error sound** (Error by default): None, Error, Denied, Decline, Invalid, Warning, Abandon,
   Blip, Raid warning or Alarm, for a blocked sale, disenchant or destroy. Picking one plays it.
-- **Lock icon corner** (top right by default) and **Lock icon size** (8 to 32, 14 by default):
-  where the padlock sits on a slot and how big it is. Padlocks on screen move as you change them.
+- **Lock icon corner** (top right by default), **Lock icon size** (8 to 32, 14 by default) and
+  **Lock icon color** (a color picker; white keeps the padlock's own colors): where the padlock
+  sits on a slot, how big it is and its color. Padlocks on screen change as you pick. In
+  Baganator, the corner is the one Baganator's own icon settings give the padlock (it starts in
+  this addon's corner).
 
 At the Auction House the click is left to Auctionator, which uses Alt+Click to pick items to
 post; the key binding still works there.
@@ -81,7 +85,7 @@ installed into the git-ignored `.tools/` folder.
 ```sh
 scripts/bootstrap.sh   # Lua 5.1.5, luacheck and StyLua
 scripts/test.sh        # lint, tests and the distribution check
-scripts/install.sh     # copy ItemLockForever/ into your AddOns folder ($ILF_ADDONS_DIR or .tools/addons-path)
+scripts/install.sh     # copy ItemLockForever/ into your AddOns folder(s): $ILF_ADDONS_DIR, or one per line in .tools/addons-path
 scripts/package.sh     # build a zip for manual installation
 ```
 
