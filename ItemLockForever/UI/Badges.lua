@@ -22,8 +22,15 @@ local readers = WeakKeys() -- button -> function(button): is its item locked?
 local parents = WeakKeys() -- button -> frame the padlock belongs to (EllesmereUI's overlay)
 local euiSlots = WeakKeys() -- EllesmereUI button -> { bag, slot, combined = itemID or nil } it shows
 
--- Size and color. White keeps the padlock's own colors; any other color tints a grey copy of
--- it, so a gold padlock looks gold whatever colors the texture has.
+-- A new padlock texture. Trilinear filtering keeps it smooth when drawn smaller than 64x64.
+local function NewBadge(parent)
+	local badge = parent:CreateTexture(nil, "OVERLAY", nil, 7)
+	badge:SetTexture(ns.LOCK_TEXTURE, "CLAMP", "CLAMP", "TRILINEAR")
+	return badge
+end
+
+-- Size and color. The padlock is white with a black outline: the color tints the white parts
+-- and the outline stays black.
 local function Style(badge)
 	local size = Database.Get("iconSize")
 	badge:SetSize(size, size)
@@ -31,7 +38,6 @@ local function Style(badge)
 	local r = tonumber(hex:sub(3, 4), 16) / 255
 	local g = tonumber(hex:sub(5, 6), 16) / 255
 	local b = tonumber(hex:sub(7, 8), 16) / 255
-	badge:SetDesaturated(not (r == 1 and g == 1 and b == 1))
 	badge:SetVertexColor(r, g, b)
 end
 
@@ -52,8 +58,7 @@ local function SetBadge(button, locked)
 		return
 	end
 	if not badge then
-		badge = (parents[button] or button):CreateTexture(nil, "OVERLAY", nil, 7)
-		badge:SetAtlas(ns.LOCK_ATLAS)
+		badge = NewBadge(parents[button] or button)
 		Place(badge, button)
 		badges[button] = badge
 	end
@@ -176,8 +181,7 @@ local function BaganatorCombined(details)
 end
 
 local function OnBaganatorInit(itemButton)
-	local badge = itemButton:CreateTexture(nil, "OVERLAY", nil, 7)
-	badge:SetAtlas(ns.LOCK_ATLAS)
+	local badge = NewBadge(itemButton)
 	Style(badge)
 	baganatorBadges[badge] = true
 	return badge

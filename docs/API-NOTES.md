@@ -103,6 +103,12 @@ to `Interface/AddOns/`. "Unverified" means only the game can confirm it: see VER
 - The padlock atlas `QuestSharing-Padlock` is used by Forever's action buttons
   (`Blizzard_ActionBar/Mainline/ActionButtonTemplate.xml:66`). The addon list reads the TOC's
   `IconAtlas` (`Blizzard_AddOnList/AddonList.lua:391`).
+- The padlock on item slots is the addon's own `Media/Padlock.tga`: 64x64, uncompressed 32-bit,
+  bottom-left origin, white with a black outline (so `SetVertexColor` tints it without
+  desaturating). `SetTexture(file, "CLAMP", "CLAMP",
+  "TRILINEAR")` keeps it smooth at 8 to 32 px; other addons on Forever pass the same filter
+  (OpenMap's `Map/WorldMap.lua`). The client only finds a texture file added while it runs after
+  a restart, not after `/reload`.
 - EllesmereUI Bags 9.5.5 (installed): `EUI_Bags.RegisterItemOverlayIcon(name, fn(btn, data))`,
   with `data.bag`, `data.slot`, `data.info`, `data.itemLink` valid during the call only;
   placeholder slots pass bag 0 / slot 0. It asks addons to keep their state off its buttons and
