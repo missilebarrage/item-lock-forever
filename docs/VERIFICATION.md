@@ -99,6 +99,14 @@ stacks (`_mergedCount`).
 3. Pick a gold color in Lock icon color: every padlock turns gold at once (Blizzard bags,
    EllesmereUI Bags, Baganator, character window). White brings back the padlock's own colors.
 
+## 6c. The padlock texture
+
+1. Restart the game (a new texture file isn't found after `/reload`), then lock an item: the
+   padlock is solid white with a black outline and keyhole, easy to see on light and dark icons.
+   Pick any color in Lock icon color: the padlock takes it and the outline stays black.
+2. Set Lock icon size to 8, then 32: the padlock stays clean at both, with no jagged or blurry
+   edges.
+
 ## 7. Options and key binding
 
 Hold to unlock (turn it on first):

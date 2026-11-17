@@ -2,11 +2,12 @@
 local ITEMS = Harness.ITEMS
 local Addons = Harness.Addons
 local LOCKED_LINE = "|A:QuestSharing-Padlock:14:14|a Locked: can't be sold, destroyed or disenchanted"
+local PADLOCK = "Interface\\AddOns\\ItemLockForever\\Media\\Padlock.tga"
 
 local function Badge(button)
 	local owner = button._textOverlay or button
 	for _, region in ipairs(owner.regions or {}) do
-		if region.atlas == "QuestSharing-Padlock" then
+		if region.texture == PADLOCK then
 			return region
 		end
 	end
@@ -244,28 +245,33 @@ describe("Padlocks", function()
 end)
 
 describe("Padlock color", function()
-	it("keeps the padlock's own colors with white, and tints a grey copy otherwise", function()
+	it("draws the addon's padlock texture smoothly, white by default", function()
 		local world, ns = Harness.Setup()
 		local _, swordAt = world:Give(ITEMS.SWORD)
 		ns.Locks.Toggle(swordAt)
-		local button = world:ShowBag(0)[1]
-		local badge = Badge(button)
-		expect(badge.desaturated).toBe(false)
+		local badge = Badge(world:ShowBag(0)[1])
+		expect(badge.filterMode).toBe("TRILINEAR")
+		expect(badge.atlas).toBeNil()
 		expect(badge.vertexColor).toEqual({ 1, 1, 1 })
-		ns.Database.Set("iconColor", "ffffd100")
-		expect(badge.desaturated).toBe(true)
-		expect(badge.vertexColor[1]).toBeCloseTo(1)
-		expect(badge.vertexColor[2]).toBeCloseTo(209 / 255)
-		expect(badge.vertexColor[3]).toBeCloseTo(0)
+	end)
+
+	it("tints the padlock with the chosen color, never a grey copy", function()
+		local world, ns = Harness.Setup()
+		local _, swordAt = world:Give(ITEMS.SWORD)
+		ns.Locks.Toggle(swordAt)
+		local badge = Badge(world:ShowBag(0)[1])
+		ns.Database.Set("iconColor", "ffff0000")
+		expect(badge.vertexColor).toEqual({ 1, 0, 0 })
 		-- New padlocks get the color too, EllesmereUI's included.
 		local _, ringAt = world:Give(ITEMS.RING)
 		ns.Locks.Toggle(ringAt)
 		local eui = Addons.NewEllesmereButton(world)
 		Addons.PaintEllesmere(world, eui, 0, ringAt.slotIndex)
-		expect(Badge(eui).desaturated).toBe(true)
-		expect(Badge(eui).vertexColor[2]).toBeCloseTo(209 / 255)
+		expect(Badge(eui).vertexColor).toEqual({ 1, 0, 0 })
 		ns.Database.Set("iconColor", "ffffffff")
-		expect(badge.desaturated).toBe(false)
+		expect(badge.vertexColor).toEqual({ 1, 1, 1 })
+		expect(badge.desaturated).toBeNil()
+		expect(Badge(eui).desaturated).toBeNil()
 	end)
 end)
 
@@ -295,7 +301,8 @@ describe("Baganator", function()
 		local swordButton, ringButton = Addons.NewBaganatorButton(world), Addons.NewBaganatorButton(world)
 		local corner = Addons.PaintBaganator(world, swordButton, 0, swordAt.slotIndex)
 		expect(corner.shown).toBe(true)
-		expect(corner.atlas).toBe("QuestSharing-Padlock")
+		expect(corner.texture).toBe(PADLOCK)
+		expect(corner.filterMode).toBe("TRILINEAR")
 		expect(corner.width).toBe(14)
 		expect(Addons.PaintBaganator(world, ringButton, 0, ringAt.slotIndex).shown).toBe(false)
 		expect(Addons.PaintBaganator(world, swordButton, 0, swordAt.slotIndex, { offline = true }).shown).toBe(false)
@@ -343,7 +350,7 @@ describe("Baganator", function()
 		ns.Database.Set("iconSize", 20)
 		ns.Database.Set("iconColor", "ffff0000")
 		expect(corner.width).toBe(20)
-		expect(corner.desaturated).toBe(true)
+		expect(corner.desaturated).toBeNil()
 		expect(corner.vertexColor).toEqual({ 1, 0, 0 })
 		expect(corner.points).toBeNil()
 	end)

@@ -19,6 +19,20 @@ describe("Loading", function()
 		end
 	end)
 
+	it("ships the padlock texture as a 64x64, uncompressed 32-bit TGA", function()
+		local handle = assert(io.open(ROOT_DIR .. "/ItemLockForever/Media/Padlock.tga", "rb"))
+		local data = handle:read("*a")
+		handle:close()
+		local function U16(at)
+			return data:byte(at) + data:byte(at + 1) * 256
+		end
+		expect(data:byte(3)).toBe(2) -- uncompressed true color
+		expect(U16(13)).toBe(64)
+		expect(U16(15)).toBe(64)
+		expect(data:byte(17)).toBe(32)
+		expect(#data).toBe(18 + 64 * 64 * 4)
+	end)
+
 	it("declares the metadata the client and the packager need", function()
 		local toc = Harness.TocMetadata()
 		expect(toc.Interface).toBe("16001")

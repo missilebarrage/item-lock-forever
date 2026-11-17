@@ -28,8 +28,11 @@ ns.L = setmetatable({}, {
 	end,
 })
 
---- The padlock drawn on locked items, in the tooltip line and as the addon's icon.
+--- The game's padlock, in the tooltip line and as the addon's icon.
 ns.LOCK_ATLAS = "QuestSharing-Padlock"
+--- The padlock drawn on locked items: white with a black outline, 64x64, so the color setting
+--- tints it cleanly and it stays readable on any item.
+ns.LOCK_TEXTURE = "Interface\\AddOns\\" .. addonName .. "\\Media\\Padlock.tga"
 
 do
 	local version = C_AddOns and C_AddOns.GetAddOnMetadata(addonName, "Version")

@@ -263,8 +263,9 @@ Define("HasFocus", function()
 end)
 
 -- Textures.
-Define("SetTexture", function(self, texture)
+Define("SetTexture", function(self, texture, _, _, filterMode)
 	self.texture = texture
+	self.filterMode = filterMode
 	return true
 end)
 Define("GetTexture", function(self)

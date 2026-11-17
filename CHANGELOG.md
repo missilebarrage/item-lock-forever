@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1 — 2026-11-16
+
+- New padlock icon on locked items
+
 ## 0.2.0 — 2026-11-14
 
 - Baganator: locked items show the padlock. It starts in the Lock icon corner; after that,
