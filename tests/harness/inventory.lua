@@ -39,6 +39,9 @@ end
 function LocationMixin:IsEquipmentSlot()
 	return self.equipmentSlotIndex ~= nil
 end
+function LocationMixin:IsValid()
+	return self:IsBagAndSlot() or self:IsEquipmentSlot()
+end
 function LocationMixin:GetBagAndSlot()
 	return self.bagID, self.slotIndex
 end
@@ -81,6 +84,7 @@ function Inventory.Install(world, env)
 		world.behavior[key] = value
 	end
 	world.calls = { LockItem = 0, UnlockItem = 0, GetItemGUID = 0, BuybackItem = 0 }
+	world.uncachedItems, world.itemRequests = {}, {}
 
 	local function Info(itemID)
 		return world.itemInfo[itemID] or { name = "Item " .. itemID, maxStack = 1, quality = 1, sellPrice = 10 }
@@ -266,8 +270,14 @@ function Inventory.Install(world, env)
 		end
 	end
 
-	--- A plain right-click on a bag item: Blizzard's handler calls UseContainerItem.
+	--- A plain right-click on a bag item: Blizzard's handler calls UseContainerItem, or with the
+	--- Auction House open puts the item in its sell slot (ContainerFrame.lua, SetPostItem).
 	function world:RightClick(location)
+		local auctionHouse = env.AuctionHouseFrame
+		if auctionHouse and auctionHouse:IsShown() and auctionHouse.SetPostItem then
+			auctionHouse:SetPostItem(location)
+			return
+		end
 		env.C_Container.UseContainerItem(location.bagID, location.slotIndex)
 	end
 
@@ -463,6 +473,41 @@ function Inventory.Install(world, env)
 		end,
 		GetItemMaxStackSize = function(location)
 			return Info(Need(location).id).maxStack
+		end,
+		GetStackCount = function(location)
+			return Need(location).count
+		end,
+		-- Item data by ID: names wait until the game has loaded the item (world.uncachedItems[id]
+		-- until RequestLoadItemDataByID's answer, GET_ITEM_INFO_RECEIVED); icons are known at once.
+		GetItemNameByID = function(itemID)
+			if world.uncachedItems[itemID] then
+				return nil
+			end
+			return Info(itemID).name
+		end,
+		GetItemIconByID = function(itemID)
+			return 100000 + itemID
+		end,
+		GetItemQualityByID = function(itemID)
+			if world.uncachedItems[itemID] then
+				return nil
+			end
+			return Info(itemID).quality
+		end,
+		GetItemQualityColor = function(quality)
+			local colors =
+				{ [0] = { 0.62, 0.62, 0.62 }, { 1, 1, 1 }, { 0.12, 1, 0 }, { 0, 0.44, 0.87 }, { 0.64, 0.21, 0.93 } }
+			local color = colors[quality] or colors[1]
+			return color[1], color[2], color[3], "ffffffff"
+		end,
+		RequestLoadItemDataByID = function(itemID)
+			world.itemRequests[#world.itemRequests + 1] = itemID
+			if world.uncachedItems[itemID] then
+				world:After(LATENCY, function()
+					world.uncachedItems[itemID] = nil
+					Fire("GET_ITEM_INFO_RECEIVED", itemID, true)
+				end)
+			end
 		end,
 		IsLocked = function(location)
 			return world.holds[Need(location).guid] ~= nil

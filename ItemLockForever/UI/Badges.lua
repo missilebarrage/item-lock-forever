@@ -1,9 +1,9 @@
 local _, ns = ...
 
 --- Padlocks on locked items: Blizzard's bags (separate or combined), bank and character slots,
---- EllesmereUI Bags through its overlay API and Baganator through its corner widgets. Only this
---- addon's own textures change: nothing is written onto anyone's buttons (that taints item use)
---- and nothing of Blizzard's is called.
+--- EllesmereUI Bags through its overlay API, Baganator through its corner widgets and Bagnon
+--- through its item buttons' update. Only this addon's own textures change: nothing is written
+--- onto anyone's buttons (that taints item use) and nothing of Blizzard's is called.
 ---@class ItemLockForeverBadges
 local Badges = ns.Badges
 local Database = ns.Database
@@ -195,6 +195,31 @@ local function OnBaganatorUpdate(_, details)
 	return Locks.IsLockedInBag(bag, slot)
 end
 
+-- Bagnon (12.x, on its BagBrother core): item buttons are classes on Blizzard's item button
+-- template, and Item:Update runs whenever a button shows an item. Bag and bank buttons
+-- (ContainerItem) reach Item.Update through a call that looks it up when it runs, so a hook on it
+-- covers buttons built before or after this one; guild bank and void storage buttons pass through
+-- it too, but show other slots, so only the inventory and bank frames get padlocks. A cached frame
+-- (another character's bags, the bank while you're away) shows Bagnon's records, not the game's
+-- slots: no padlock there.
+local BAGNON_FRAMES = { inventory = true, bank = true }
+
+local function ReadBagnonButton(button)
+	if not button.IsCached or button:IsCached() then
+		return false
+	end
+	local bag = ns.Num(button.GetBag and button:GetBag())
+	local slot = ns.Num(button:GetID())
+	return bag ~= nil and slot ~= nil and Locks.IsLockedInBag(bag, slot)
+end
+
+local function OnBagnonUpdate(button)
+	local frame = type(button) == "table" and button.frame
+	if type(frame) == "table" and BAGNON_FRAMES[frame.id] then
+		Paint(button, ReadBagnonButton)
+	end
+end
+
 --- The item ID when frame (the frame under the mouse, or one of its parents) is a button standing
 --- for every stack of an item (EllesmereUI Bags' All Items, Baganator's grouped items); else nil.
 function Badges.CombinedItemAt(frame)
@@ -256,6 +281,10 @@ function Badges.Init()
 			{ corner = corner, priority = 1 },
 			true
 		)
+	end
+	local bagnonItem = Bagnon and Bagnon.Item
+	if type(bagnonItem) == "table" and type(bagnonItem.Update) == "function" then
+		hooksecurefunc(bagnonItem, "Update", OnBagnonUpdate)
 	end
 	Events.On("ILF_LOCKS_CHANGED", RefreshVisible)
 	-- A new corner, size or color changes every padlock at once, so the change shows while

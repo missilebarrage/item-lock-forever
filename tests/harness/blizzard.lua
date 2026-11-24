@@ -1,5 +1,6 @@
 -- Fake Blizzard item UI: the modified-click function, bag frames (separate and combined), the
--- bank, character slots, the item tooltip with its data processor, and the Auction House frame.
+-- bank, character slots, the item tooltip with its data processor, and the Auction House with its
+-- sell slots.
 -- Tripwires record calls the addon must never make (world.violations), and buttons remember
 -- their own keys so tests can prove the addon wrote nothing onto them.
 
@@ -137,9 +138,138 @@ function Blizzard.Install(world, env)
 		world.characterSlots[slot] = Seal(button)
 	end
 
+	-- The Auction House ---------------------------------------------------------------
+
+	-- C_AuctionHouse: every item in the bags can be listed (the client's own rules don't matter
+	-- here), and a post takes `quantity` of the item: the given stack first, then other stacks or
+	-- copies of the same item in the bags. The server picks those; which ones isn't known, so any
+	-- can go. world.posts records each post with the GUIDs it took.
+	world.posts = {}
+	world.auctionHouseShowHooks, world.auctionHouseHideHooks = {}, {}
+	local function Post(location, quantity)
+		local first = world:ItemAt(location)
+		local taken, left = { first.guid }, quantity - first.count
+		for bagID = 0, 5 do
+			local bag = world.bags[bagID]
+			for slot = 1, bag.size do
+				local item = bag[slot]
+				if left > 0 and item and item ~= first and item.id == first.id then
+					taken[#taken + 1] = item.guid
+					left = left - item.count
+				end
+			end
+		end
+		world.posts[#world.posts + 1] = { itemID = first.id, quantity = quantity, guids = taken }
+		return false -- no confirmation needed
+	end
+	env.C_AuctionHouse = {
+		IsSellItemValid = function(location)
+			return location ~= nil and env.C_Item.DoesItemExist(location)
+		end,
+		GetAvailablePostCount = function(location)
+			return world:Count(env.C_Item.GetItemID(location))
+		end,
+		PostItem = function(location, _, quantity)
+			return Post(location, quantity)
+		end,
+		PostCommodity = function(location, _, quantity)
+			return Post(location, quantity)
+		end,
+	}
+
+	-- AuctionHouseFrame (Blizzard_AuctionHouseUI, loaded on demand), modeled on UI source
+	-- 1.60.1.70959: SetPostItem and ClearPostItem (Shared/Blizzard_AuctionHouseFrame.lua 608-638),
+	-- the sell frames' SetItem and GetItem (Shared/Blizzard_AuctionHouseSellFrame.lua 374-414), and
+	-- their item display, which locks the item it shows and unlocks the one it lets go
+	-- (Shared/Blizzard_AuctionHouseSharedTemplates.lua 546-566).
+	local function SellFrame(parent, commodity)
+		local sell = Widgets.Create(world, "Frame", nil, parent)
+		function sell:SetItem(itemLocation)
+			if itemLocation ~= nil and not env.C_AuctionHouse.IsSellItemValid(itemLocation) then
+				return false
+			end
+			local current = self.itemLocation
+			self.itemLocation = itemLocation
+			if current and env.C_Item.DoesItemExist(current) then
+				env.C_Item.UnlockItem(current)
+			end
+			if itemLocation and env.C_Item.DoesItemExist(itemLocation) then
+				env.C_Item.LockItem(itemLocation)
+			end
+			return true
+		end
+		function sell:GetItem()
+			return self.itemLocation
+		end
+		--- The Post button. A commodity posts as many as possible (the worst case), an item one.
+		function sell:PostItem()
+			local item = self.itemLocation
+			if not item or not env.C_Item.DoesItemExist(item) then
+				return false
+			end
+			if commodity then
+				env.C_AuctionHouse.PostCommodity(item, 1, env.C_AuctionHouse.GetAvailablePostCount(item), 100)
+			else
+				env.C_AuctionHouse.PostItem(item, 1, 1, nil, 100)
+			end
+			return true
+		end
+		return sell
+	end
+	local function BuildAuctionHouse()
+		local frame = Widgets.Create(world, "Frame", "AuctionHouseFrame")
+		frame.shown = false
+		frame.ItemSellFrame = SellFrame(frame, false)
+		frame.CommoditiesSellFrame = SellFrame(frame, true)
+		function frame:SetPostItem(itemLocation)
+			if not itemLocation:IsValid() or not env.C_AuctionHouse.IsSellItemValid(itemLocation) then
+				return
+			end
+			self:ClearPostItem()
+			if env.C_Item.GetItemMaxStackSize(itemLocation) > 1 then
+				self.CommoditiesSellFrame:SetItem(itemLocation)
+			else
+				self.ItemSellFrame:SetItem(itemLocation)
+			end
+		end
+		function frame:ClearPostItem()
+			self.CommoditiesSellFrame:SetItem(nil)
+			self.ItemSellFrame:SetItem(nil)
+		end
+		env.AuctionHouseFrame = frame
+		world.loadedAddons.Blizzard_AuctionHouseUI = true
+	end
 	if world.options.auctionHouse then
-		env.AuctionHouseFrame = Widgets.Create(world, "Frame", "AuctionHouseFrame")
-		env.AuctionHouseFrame.shown = false
+		BuildAuctionHouse() -- already loaded at login
+	end
+
+	--- Loads Blizzard_AuctionHouseUI, as the game does the first time the Auction House opens.
+	function world:LoadAuctionHouseUI()
+		if not env.AuctionHouseFrame then
+			BuildAuctionHouse()
+			self:Fire("ADDON_LOADED", "Blizzard_AuctionHouseUI")
+		end
+	end
+
+	--- Talks to an auctioneer: the frame shows, and addons like Auctionator build their tabs.
+	function world:OpenAuctionHouse()
+		self:LoadAuctionHouseUI()
+		env.AuctionHouseFrame:Show()
+		for _, hook in ipairs(self.auctionHouseShowHooks) do
+			hook()
+		end
+		self:Fire("AUCTION_HOUSE_SHOW")
+	end
+
+	--- Leaves: the frame empties its sell slots as it hides (AuctionHouseFrameMixin:OnHide).
+	function world:CloseAuctionHouse()
+		local frame = env.AuctionHouseFrame
+		frame:Hide()
+		for _, hook in ipairs(self.auctionHouseHideHooks) do
+			hook()
+		end
+		frame:ClearPostItem()
+		self:Fire("AUCTION_HOUSE_CLOSED")
 	end
 
 	-- Helpers for tests -------------------------------------------------------------

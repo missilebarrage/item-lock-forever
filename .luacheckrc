@@ -29,6 +29,7 @@ files["ItemLockForever/**/*.lua"] = {
 		"UIErrorsFrame",
 		"Settings",
 		"CreateKeybindingEntryInitializer",
+		"CreateSettingsButtonInitializer",
 		"MinimalSliderWithSteppersMixin",
 		"TooltipDataProcessor",
 		"InCombatLockdown",
@@ -78,6 +79,9 @@ files["ItemLockForever/**/*.lua"] = {
 		-- Optional addons.
 		"EUI_Bags",
 		"Baganator",
+		"Bagnon",
+		"Auctionator",
+		"AuctionatorSaleItemMixin",
 	},
 }
 

@@ -356,6 +356,62 @@ function Locks.Toggle(location, view)
 	return locked, isStack and "stack" or "item"
 end
 
+-- The list in the options --------------------------------------------------------------------
+
+--- Every lock, for the options' list: { itemID = id, guid = itemGUID } for an item or stack
+--- locked as itself (for every character, wherever it is now), { itemID = id } for this
+--- character's every-stack locks.
+function Locks.List()
+	local list = {}
+	for itemID in pairs(stacks) do
+		if type(itemID) == "number" then
+			list[#list + 1] = { itemID = itemID }
+		end
+	end
+	for guid, itemID in pairs(items) do
+		if type(itemID) == "number" then
+			list[#list + 1] = { itemID = itemID, guid = guid }
+		end
+	end
+	return list
+end
+
+--- Unlocks an item or stack locked as itself, wherever it is (from the list, so the item may be
+--- with another character). An every-stack lock on its item stays: that's its own entry.
+---@return boolean unlocked
+function Locks.UnlockItem(guid)
+	if Database.IsReadOnly() then
+		ns.Print(L.READ_ONLY)
+		return false
+	end
+	local itemID = items[guid]
+	if type(itemID) ~= "number" then
+		return false
+	end
+	SetLocked(guid, itemID, false)
+	Changed(itemID, guid, false)
+	return true
+end
+
+--- Removes this character's every-stack lock on an item (from the list). Stacks locked as
+--- themselves stay locked: they're entries of their own.
+---@return boolean unlocked
+function Locks.UnlockEveryStack(itemID)
+	if Database.IsReadOnly() then
+		ns.Print(L.READ_ONLY)
+		return false
+	end
+	if not stacks[itemID] then
+		return false
+	end
+	stacks[itemID] = nil
+	for guid in pairs(Copy(freeByID[itemID])) do
+		SetFree(guid, itemID, false)
+	end
+	Changed(itemID, nil, false)
+	return true
+end
+
 --- Connects to the saved locks. Called at PLAYER_LOGIN, before the other modules start, so stacks
 --- are followed before anything else handles a bag update.
 function Locks.Init()

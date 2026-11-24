@@ -99,6 +99,67 @@ stacks (`_mergedCount`).
 3. Pick a gold color in Lock icon color: every padlock turns gold at once (Blizzard bags,
    EllesmereUI Bags, Baganator, character window). White brings back the padlock's own colors.
 
+## 6c. Auction House (0.3.0)
+
+Lock a cheap piece of gear and one of two stacks of a trade good. `/ilf debug` prints `auction:
+took out item …` each time an item is taken out of a sell slot.
+
+1. At an auctioneer, Blizzard's Sell tab: right-click the locked gear in the bags. Expected: it
+   shows in the sell slot for a moment, then the slot empties, red text says "… is locked, so it
+   can't be listed." and the error sound plays. Drag it onto the sell slot: the same (or it won't
+   drag).
+2. Right-click the unlocked stack of the trade good: it's taken out with "… can't be listed while
+   another one in your bags is locked." Unlock the other stack and try again: it stays.
+3. Right-click an unlocked item: it stays and posts (cancel the auction afterwards).
+4. Put an unlocked item in the sell slot, then lock it with the key binding: it's taken out.
+5. Auctionator's Selling tab: pick the locked gear with its Alt+Click shortcut, from its item list
+   and by dragging it onto its item slot. Each time the slot empties with the error. An unlocked
+   item stays and posts.
+6. No "Interface action failed because of an AddOn" message after any of this, and nothing about
+   ItemLockForever in `Logs/taint.log`.
+
+Fallbacks: if a locked item stays in Blizzard's slot, the sell frames changed (`SetItem`,
+`GetItem`, `ClearPostItem`). If it stays in Auctionator's, `AuctionatorSaleItemMixin.Update` or the
+`ClearBagItem` event changed. If posting breaks after an item was taken out of Blizzard's slot,
+clearing it from addon code tainted the sell frame: clear only Auctionator's slot and leave a
+message for Blizzard's.
+
+## 6d. Bagnon (0.3.0)
+
+With Bagnon on (and EllesmereUI Bags off, so Bagnon shows the bags):
+
+1. Lock a piece of gear and one stack of a trade good. Open the bags: each shows the padlock in the
+   Lock icon corner. Alt+Click an item in Bagnon: it locks or unlocks and the padlock follows
+   (Bagnon's Flash Find may flash its copies too).
+2. Drag a locked item to another slot, then sort the bags with Bagnon's sort button: the padlock
+   moves with the item.
+3. At the banker, open Bagnon's bank: locked items there show the padlock.
+4. Away from the bank, open Bagnon's bank view, and another character's bags: no padlocks. The
+   guild bank (if Bagnon shows it): no padlocks.
+5. Change Lock icon corner, size and color with the bags open: Bagnon's padlocks change at once.
+6. Turn Bagnon off: Blizzard's bags show the padlocks again; with EllesmereUI Bags on, its bags do.
+
+Fallback: if no padlock shows, Bagnon renamed `Bagnon.Item.Update` or the frame ids (`inventory`,
+`bank`): hook what calls the buttons' update instead.
+
+## 6e. Locked items list (0.3.0)
+
+1. Lock a piece of gear in the bags, a stack, something you wear and something in the bank, and
+   lock every stack of an item in EllesmereUI's All Items view. Open Esc > Options > AddOns >
+   ItemLockForever: the first row has a Show list button, and Locked items sits under
+   ItemLockForever in the list on the left. Both open the page; so does `/ilf list`.
+2. Expected: one row per lock, every-stack locks first, then Bags, Worn, Bank; names in their
+   quality colors, stacks with their size, the summary counts them. Hovering a row shows the item.
+3. Mail a locked item to an alt: on this character it's listed as Elsewhere; on the alt, once the
+   mail is taken, it shows under Bags.
+4. Click Unlock on a few rows: the row goes, the unlock sound plays, the padlock in the bags goes.
+   Unlock an every-stack row: every stack of it is unlocked.
+5. With the page open, lock another item (Alt+Click in the bags): it appears.
+6. Nothing locked: "Nothing is locked yet."
+
+Fallback: if Show list or `/ilf list` does nothing, open the page from the list on the left and
+check `Settings.OpenToCategory` for subcategories.
+
 ## 7. Options and key binding
 
 Hold to unlock (turn it on first):
@@ -159,3 +220,6 @@ Fallback: move the padlock to another corner.
 - 2026-11-14, build 1.60.1.70938 (live), Baganator 856: 0.2.0 user acceptance test passed ("works now").
   The first try showed no padlock in Baganator (the widget read button details Baganator doesn't
   have); fixed before the release. Sections weren't reported one by one.
+- 2026-11-24, build 1.60.1.71091 (live), Bagnon 12.1.12, Auctionator 352, EllesmereUI Bags 9.9.2:
+  0.3.0 user acceptance test passed (Auction House, Bagnon, locked items list). Sections weren't
+  reported one by one.

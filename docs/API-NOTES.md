@@ -179,6 +179,108 @@ From Baganator's public source (release 834, 2026-10-08, TOC Interface lists 160
   re-runs the widgets on the next frame. Its own icon widgets are textures created on the item
   button (`API/ItemButton.lua` ~307-322).
 
+## Bagnon
+
+From Bagnon 12.1.12 with its BagBrother core, as installed on Forever (2026-11-24). Bagnon's own
+files and BagBrother's shared frame code (included by `Bagnon/src/main.xml`) run as the addon
+`Bagnon`, a global (`WildAddon-1.1` `NewAddon`), so its classes are `Bagnon.Item`,
+`Bagnon.ContainerItem`, `Bagnon.GuildItem` and `Bagnon.VaultItem`.
+
+- Item buttons are classes on Blizzard's `ContainerFrameItemButtonTemplate`
+  (`BagBrother/core/classes/item.lua` line 7), so Blizzard's click handling, and with it
+  `HandleModifiedItemClick`, runs for them.
+- `Item:Bind` copies every method of the class chain onto a new button, collected once per class
+  on its first button ("required for secure frames", `item.lua` 75-92). A hook on a class
+  method made after a class's first button doesn't reach that class's buttons.
+- `ContainerItem:Update` (bag and bank buttons, `core/classes/containerItem.lua` 62-76) calls
+  `self:Super(Item):Update(...)`, which Poncho looks up on the class when it runs
+  (`libs/Poncho-2.0/Poncho-2.0.lua`, `SuperCall` and `Base:Super`): a hook on `Bagnon.Item.Update`
+  reaches every bag and bank button, whenever it was built. `GuildItem` and `VaultItem` don't
+  define `Update`, so their buttons carry a copy of `Item.Update` (hooked if built after the
+  hook); their "bag" is a guild tab (`frames/guild/item.lua` 75).
+- `Item:Update(info)` sets `self.info` from `self:GetItemInfo(bag, slot)` and runs on every layout
+  (`core/classes/itemGroup.lua` 119) and slot change. A button's frame (`button.frame`,
+  `core/classes/parented.lua`) has an id: `inventory`, `bank`, `guild` or `vault`
+  (`core/api/frames.lua` 9-12).
+- Cached slots (another character, or the bank while you're away: `Bank:IsCached`,
+  `frames/bank/bank.lua` 93) get their info from Bagnon's records (`core/classes/frameBase.lua`
+  169-199), which carry no `cached` flag: `button:IsCached()` (ContainerItem,
+  `containerItem.lua` 132) is the test.
+- Bagnon builds its inventory frame at `PLAYER_ENTERING_WORLD`, showing and hiding it once
+  (`core/core.lua` ~74-84), so its first bag buttons exist before the bags are ever opened.
+- Alt+Left Click on an item also plays Bagnon's Flash Find when `flashFind` is on, as it is by
+  default (`item.lua` ~102, `core/api/settings.lua` 20).
+
+## Auction House
+
+From the Forever UI source (Gethe/wow-ui-source `forever`, build 1.60.1.70959) and Auctionator 347
+as installed on Forever (2026-11-18); the Auctionator lines cited are unchanged in 352 (2026-11-24):
+
+- Forever has the modern Auction House, `Blizzard_AuctionHouseUI`, loaded on demand when the
+  Auction House first opens (its TOC allows `mainline`; Forever's game type `camelot` counts as
+  mainline). `AuctionHouseFrame` exists only after that.
+- Every way into Blizzard's sell slot ends in a sell frame's `SetItem`: a right-click in the bags
+  (`Blizzard_UIPanels_Game/Mainline/ContainerFrame.lua` ~1555-1561, when the item passes
+  `C_AuctionHouse.IsSellItemValid(itemLocation, false)` or the Sell tab is showing), a drop on the
+  slot (the item display's `onItemChangedCallback`) and a drop on the sell frame's overlay all call
+  `AuctionHouseFrame:SetPostItem(itemLocation)` (`Shared/Blizzard_AuctionHouseFrame.lua` 608),
+  which calls `ClearPostItem()` and then `ItemSellFrame:SetItem` or `CommoditiesSellFrame:SetItem`
+  (`Shared/Blizzard_AuctionHouseSellFrame.lua` 374; `GetItem()` returns the item location).
+- The sell slot locks the item it shows with `C_Item.LockItem` and unlocks the one it lets go
+  (`Shared/Blizzard_AuctionHouseSharedTemplates.lua` 546-566), and Auctionator's sale slot does the
+  same (`Source_ModernAH/Tabs/Selling/Mixins/SaleItem.lua` 131-146). Both then post the item they
+  locked, so the game's item lock doesn't stop a listing, and either slot would undo a hold: there
+  is no Auction House hold.
+- `CanPostItem` doesn't check the item again (`Shared/Blizzard_AuctionHouseSellFrame.lua` 471).
+  `C_AuctionHouse.PostItem` and `PostCommodity` have `HasRestrictions = true`
+  (`AuctionHouseDocumentation.lua` 864-899): addons can't wrap them, but Auctionator calls them from
+  its own button, so they need a hardware event, not Blizzard's code.
+- Closing the Auction House empties the sell slots (`AuctionHouseFrameMixin:OnHide`, line 456).
+- Auctionator's TOC loads files by game type; on Forever: `Libs_ModernAH`, `Source`,
+  `Source_Mainline`, `Source_ModernAH` and `Source_Forever/Constants.lua`.
+- Every way into Auctionator's sale slot fires `Auctionator.Selling.Events.BagItemClicked`
+  (`"bag_item_clicked"`, `Source/Selling/Events.lua`): its bag shortcut (Alt+Click by default,
+  `Source_ModernAH/Selling/Hooks.lua`, checks `IsSellItemValid`), its item list and a drop on its
+  item slot (`Source/Tabs/Selling/Mixins/BagItemSelected.lua`). `AuctionatorSaleItemMixin:ReceiveEvent`
+  waits for the item key (`Auctionator.AH.GetItemKeyInfo`, sometimes a moment later), then sets
+  `itemInfo` (with `location`), calls `LockItem()` and `Update()` (`SaleItem.lua` 205-216).
+  `ClearBagItem` (`"clear_bag_item"`) runs `Reset()`, which unlocks the item and empties the slot;
+  Auctionator fires it itself (`Source/Tabs/Selling/Mixins/BagUse.lua` 42). Its event bus raises an
+  error for a source that wasn't registered with `RegisterSource` (`Source/Utilities/EventBusMixin.lua`).
+- Auctionator's default quantity is `GetPostLimit()`, `min(GetAvailablePostCount(location),
+  itemInfo.count)`, where `count` adds up every stack of the item in the bags (`SaleItem.lua`
+  177-183 and 376-388, `Source/Groups/BagCache.lua` 47): a listing takes all of them.
+- The sale slot is `AuctionatorSellingFrame.SaleItemFrame`, built from the mixin when the Auction
+  House first shows (`Source_ModernAH/Core/Mixin.lua` `InitializeAuctionHouseTabs`,
+  `Tabs/Mixins/TabContainer.lua`), so a hook on the mixin made at login reaches it.
+- Auctionator clears Blizzard's sell frames from its own code (`ItemSellFrame:SetItem(nil, nil,
+  false)`, `Source_ModernAH/Selling/Hooks.lua` 7-8).
+- Unknown until tested in game: whether `IsSellItemValid` turns down an item the game holds, and
+  which stacks the server takes when a listing is bigger than the stack picked (assumed: any).
+
+## Locked items page
+
+From the Forever UI source (build 1.60.1.71037):
+
+- `Settings.RegisterCanvasLayoutSubcategory(category, frame, name)` returns the subcategory and its
+  layout (`Blizzard_Settings_Shared/Blizzard_Settings.lua` 166, through `SettingsInbound` 99). When
+  the page is picked the panel parents the frame to its canvas, anchors it to fill it (unless the
+  layout has anchor points), shows it and calls `frame:OnRefresh()` if there is one
+  (`Blizzard_SettingsPanel.lua`, `DisplayLayout`). `OnDefault` would run for the Defaults button:
+  the page has none, so Defaults never unlocks anything (`Blizzard_ImplementationReadme.lua`).
+- `CreateSettingsButtonInitializer(name, buttonText, buttonClick, tooltip, addSearchTags)` is a row
+  with a button (`Blizzard_SettingControls.lua` 1040; `addSearchTags` must be given, 1045), whose
+  click is set straight as the button's `OnClick` (979). `Settings.OpenToCategory(categoryID)` goes
+  through `C_SettingsUtil.OpenSettingsPanel` (`Blizzard_Settings.lua` 144). TimmyUI opens its own
+  subcategory pages the same way.
+- `GameTooltip:SetItemByID` and `SetItemByGUID` are TooltipDataHandler accessors
+  (`Blizzard_SharedXMLGame/Tooltip/TooltipDataHandler.lua` 525, 601).
+- `C_Item.GetItemNameByID`, `GetItemIconByID`, `GetItemQualityByID`, `GetItemQualityColor` (r, g, b
+  and a quality string), `RequestLoadItemDataByID` and `GetStackCount` are documented in
+  `ItemDocumentation.lua`; a requested item's data comes with `GET_ITEM_INFO_RECEIVED`.
+- Unknown until tested in game: whether `C_Item.GetItemLocation(guid)` finds bank items while
+  you're away from the bank (if not, they're listed as Elsewhere).
+
 ## Options and key binding
 
 - `CreateKeybindingEntryInitializer(bindingIndex, search)`

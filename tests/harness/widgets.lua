@@ -372,6 +372,22 @@ Define("GetVisibleExtentPercentage", function(self)
 	return count > 0 and math.min(1, 12 / count) or 1
 end)
 
+-- Text layout.
+Define("SetJustifyH", function(self, justify)
+	self.justifyH = justify
+end)
+Define("SetWordWrap", function(self, wrap)
+	self.wordWrap = wrap
+end)
+
+-- Tooltip items (TooltipDataHandler's SetItemByID and SetItemByGUID).
+Define("SetItemByID", function(self, itemID)
+	self.shownItem = { itemID = itemID }
+end)
+Define("SetItemByGUID", function(self, guid)
+	self.shownItem = { guid = guid }
+end)
+
 -- ScrollFrame.
 Define("SetScrollChild", function(self, child)
 	self.scrollChild = child

@@ -6,7 +6,9 @@ return {
 	"merchant_test.lua",
 	"disenchant_test.lua",
 	"destroy_test.lua",
+	"auction_test.lua",
 	"feedback_test.lua",
 	"display_test.lua",
+	"list_test.lua",
 	"perf_test.lua",
 }

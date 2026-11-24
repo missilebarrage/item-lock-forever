@@ -1,7 +1,7 @@
 -- The tooltip lines and the padlocks on Blizzard's and EllesmereUI's item buttons.
 local ITEMS = Harness.ITEMS
 local Addons = Harness.Addons
-local LOCKED_LINE = "|A:QuestSharing-Padlock:14:14|a Locked: can't be sold, destroyed or disenchanted"
+local LOCKED_LINE = "|A:QuestSharing-Padlock:14:14|a Locked: can't be sold, auctioned, destroyed or disenchanted"
 
 local function Badge(button)
 	local owner = button._textOverlay or button
@@ -346,5 +346,94 @@ describe("Baganator", function()
 		expect(corner.desaturated).toBe(true)
 		expect(corner.vertexColor).toEqual({ 1, 0, 0 })
 		expect(corner.points).toBeNil()
+	end)
+end)
+
+describe("Bagnon", function()
+	local function Setup(options)
+		options = options or {}
+		options.bagnon = true
+		return Harness.Setup(options)
+	end
+
+	it("shows the padlock on locked items in Bagnon's bags and follows lock changes", function()
+		local world, ns = Setup()
+		local _, swordAt = world:Give(ITEMS.SWORD)
+		local _, ringAt = world:Give(ITEMS.RING)
+		ns.Locks.Toggle(swordAt)
+		local inventory = Addons.NewBagnonFrame(world, "inventory")
+		local swordButton = Addons.NewBagnonButton(world, inventory, 0, swordAt.slotIndex)
+		local ringButton = Addons.NewBagnonButton(world, inventory, 0, ringAt.slotIndex)
+		swordButton:Update()
+		ringButton:Update()
+		expect(Badge(swordButton).shown).toBe(true)
+		expect(Badge(swordButton).points[1][1]).toBe("TOPRIGHT")
+		expect(Badge(ringButton)).toBeNil()
+		expect(swordButton.cooldownChecked).toBe(true) -- Bagnon's own update still runs
+		ns.Locks.Toggle(swordAt)
+		ns.Locks.Toggle(ringAt)
+		expect(Badge(swordButton).shown).toBe(false)
+		expect(Badge(ringButton).shown).toBe(true)
+		ns.Database.Set("iconCorner", "BOTTOMLEFT")
+		expect(Badge(ringButton).points[1][1]).toBe("BOTTOMLEFT")
+		expect(Harness.ForeignKeys(swordButton)).toEqual({})
+		expect(Harness.ForeignKeys(ringButton)).toEqual({})
+	end)
+
+	it("shows the padlock in Bagnon's bank while you're at it", function()
+		local world, ns = Setup()
+		local _, swordAt = world:Give(ITEMS.SWORD, { bag = 6, slot = 2 })
+		ns.Locks.Toggle(swordAt)
+		local button = Addons.NewBagnonButton(world, Addons.NewBagnonFrame(world, "bank"), 6, 2)
+		button:Update()
+		expect(Badge(button).shown).toBe(true)
+	end)
+
+	it("moves the padlock with an item when Bagnon updates the slots", function()
+		local world, ns = Setup()
+		local _, swordAt = world:Give(ITEMS.SWORD, { bag = 0, slot = 1 })
+		ns.Locks.Toggle(swordAt)
+		local inventory = Addons.NewBagnonFrame(world, "inventory")
+		local first = Addons.NewBagnonButton(world, inventory, 0, 1)
+		local second = Addons.NewBagnonButton(world, inventory, 0, 2)
+		first:Update()
+		second:Update()
+		world:Move(swordAt, 0, 2)
+		first:Update()
+		second:Update()
+		expect(Badge(first).shown).toBe(false)
+		expect(Badge(second).shown).toBe(true)
+	end)
+
+	it("shows no padlock in cached views or on guild bank slots", function()
+		local world, ns = Setup()
+		local _, swordAt = world:Give(ITEMS.SWORD, { bag = 1, slot = 3 })
+		ns.Locks.Toggle(swordAt)
+		-- Another character's bags, and the bank while you're away: Bagnon's records, not your slots.
+		local alt = Addons.NewBagnonFrame(world, "inventory", true)
+		alt.records[1] = { [3] = { itemID = ITEMS.SWORD } }
+		local altButton = Addons.NewBagnonButton(world, alt, 1, 3)
+		altButton:Update()
+		expect(HasBadge(altButton)).toBe(false)
+		local away = Addons.NewBagnonButton(world, Addons.NewBagnonFrame(world, "bank", true), 1, 3)
+		away:Update()
+		expect(HasBadge(away)).toBe(false)
+		-- A guild bank tab is no bag: its slot 3 isn't bag 1's.
+		local guild = Addons.NewBagnonButton(world, Addons.NewBagnonFrame(world, "guild"), 1, 3, "GuildItem")
+		guild:Update()
+		expect(HasBadge(guild)).toBe(false)
+	end)
+
+	it("reaches buttons Bagnon built before this addon hooked its update", function()
+		local early = {}
+		local world, ns = Setup({
+			configure = function(world)
+				early.button = Addons.NewBagnonButton(world, Addons.NewBagnonFrame(world, "inventory"), 0, 1)
+			end,
+		})
+		local _, swordAt = world:Give(ITEMS.SWORD, { bag = 0, slot = 1 })
+		ns.Locks.Toggle(swordAt)
+		early.button:Update()
+		expect(Badge(early.button).shown).toBe(true)
 	end)
 end)

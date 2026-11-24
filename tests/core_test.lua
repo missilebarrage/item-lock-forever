@@ -198,7 +198,9 @@ describe("Options", function()
 			"CTRL-RightButton=Ctrl + Right Click",
 			"NONE=Off (key binding only)",
 		})
-		local binding = category.initializers[1]
+		-- First a button to the list of locked items, then the key binding.
+		expect(category.initializers[1].kind).toBe("button")
+		local binding = category.initializers[2]
 		expect(binding.kind).toBe("keybinding")
 		expect(binding.bindingIndex).toBe(412)
 		expect(binding.tags).toEqual({ "Lock/unlock hovered item" })
@@ -223,7 +225,11 @@ describe("Options", function()
 				w.bindingActions = {}
 			end,
 		})
-		expect(#Category(world).initializers).toBe(0)
+		local kinds = {}
+		for _, initializer in ipairs(Category(world).initializers) do
+			kinds[#kinds + 1] = initializer.kind
+		end
+		expect(kinds).toEqual({ "button" })
 		expect(Category(world).settings.click).toBeTruthy()
 	end)
 

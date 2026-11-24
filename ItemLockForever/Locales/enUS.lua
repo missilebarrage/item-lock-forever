@@ -16,7 +16,7 @@ L.DATA_FROM_NEWER_VERSION =
 	"Your locks were saved by a newer version of ItemLockForever. They still protect your items, but can't be changed until you update."
 
 -- Tooltip.
-L.TOOLTIP_LOCKED = "Locked: can't be sold, destroyed or disenchanted"
+L.TOOLTIP_LOCKED = "Locked: can't be sold, auctioned, destroyed or disenchanted"
 L.HINT_ALT_LEFT = "Alt+Click to unlock"
 L.HINT_ALT_RIGHT = "Alt+Right-Click to unlock"
 L.HINT_CTRL_ALT_RIGHT = "Ctrl+Alt+Right-Click to unlock"
@@ -28,6 +28,8 @@ L.HINT_HOLD = "Hold %s"
 L.CANT_SELL = "%s is locked, so it can't be sold."
 L.CANT_DISENCHANT = "%s is locked, so it can't be disenchanted."
 L.CANT_DESTROY = "%s is locked, so it can't be destroyed."
+L.CANT_LIST = "%s is locked, so it can't be listed."
+L.CANT_LIST_OTHER = "%s can't be listed while another one in your bags is locked."
 L.BOUGHT_BACK = "%s is locked, so it was bought back."
 L.BUYBACK_FAILED = "Couldn't buy back %s. It's still in the vendor's Buyback tab."
 
@@ -35,7 +37,7 @@ L.BUYBACK_FAILED = "Couldn't buy back %s. It's still in the vendor's Buyback tab
 L.BINDING_TOGGLE = "Lock/unlock hovered item"
 L.OPTION_CLICK = "Lock with click"
 L.OPTION_CLICK_TOOLTIP =
-	"Click an item in your bags, bank or character window with this to lock or unlock it. Locked items can't be sold to a vendor, destroyed or disenchanted."
+	"Click an item in your bags, bank or character window with this to lock or unlock it. Locked items can't be sold to a vendor, listed on the Auction House, destroyed or disenchanted."
 L.CLICK_ALT_LEFT = "Alt + Left Click"
 L.CLICK_ALT_RIGHT = "Alt + Right Click"
 L.CLICK_CTRL_ALT_RIGHT = "Ctrl + Alt + Right Click"
@@ -85,6 +87,25 @@ L.BAGANATOR_WIDGET = "ItemLockForever padlock"
 L.OPTION_ICON_SIZE = "Lock icon size"
 L.OPTION_ICON_SIZE_TOOLTIP = "The size of the padlock on item slots."
 L.OPTIONS_IN_COMBAT = "Options can't be opened during combat."
+L.OPTION_LOCKED_ITEMS = "Locked items"
+L.OPTION_LOCKED_ITEMS_BUTTON = "Show list"
+L.OPTION_LOCKED_ITEMS_TOOLTIP = "Everything that's locked, with a button to unlock each one."
+
+-- Locked items list.
+L.LOCKED_ITEMS = "Locked items"
+L.LOCKED_ITEMS_HELP =
+	"Everything ItemLockForever keeps locked. An item locked on its own stays locked on every character; every-stack locks are this character's. Elsewhere means the mail, another character, or the bank while you're away."
+L.LOCKED_COUNT = "%d locks"
+L.LOCKED_COUNT_ONE = "1 lock"
+L.LOCKED_NONE = "Nothing is locked yet."
+L.UNLOCK = "Unlock"
+L.EVERY_STACK = "Every stack (this character)"
+L.WHERE_BAGS = "Bags"
+L.WHERE_WORN = "Worn"
+L.WHERE_BANK = "Bank"
+L.WHERE_ELSEWHERE = "Elsewhere"
+L.WHERE_STACK = "%s, stack of %d"
+L.ITEM_NUMBER = "Item %d"
 
 -- Diagnostics.
 L.DEBUG_ON = "Debug output on (item IDs and counts only). /ilf debug turns it off."

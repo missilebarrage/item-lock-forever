@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.0 — 2026-11-24
+
+- Auction House: locked items can't be listed. A locked item put in the sell slot (Blizzard's Sell
+  tab or Auctionator's Selling tab) is taken out again at once, with the error text and sound. An
+  item also can't be listed while another one of it in your bags is locked, since a listing can
+  take more than the stack you picked.
+- The tooltip line now says locked items can't be auctioned either.
+- Locked items: a list of every lock under Esc > Options > AddOns > ItemLockForever (or `/ilf
+  list`), with where each item is and an Unlock button for each.
+- Bagnon: locked items show the padlock, in the bags and in the bank while you're at it (not in
+  views of other characters or of the bank from afar).
+
 ## 0.2.0 — 2026-11-14
 
 - Baganator: locked items show the padlock. It starts in the Lock icon corner; after that,

@@ -1,7 +1,7 @@
 # ItemLockForever
 
-Lock your items so they can't be sold to a vendor, destroyed or disenchanted by accident, for
-**World of Warcraft: Forever**.
+Lock your items so they can't be sold to a vendor, listed on the Auction House, destroyed or
+disenchanted by accident, for **World of Warcraft: Forever**.
 
 ## Features
 
@@ -26,10 +26,14 @@ Lock your items so they can't be sold to a vendor, destroyed or disenchanted by 
 - **Can't be disenchanted.** While Disenchant waits for you to pick an item, locked items are held
   the same way (greyed out), so clicking one does nothing. Other spells that target items, like
   enchants and poisons, still work on locked items.
-- **Tells you why.** Trying to sell, disenchant or destroy a locked item shows red error text
+- **Can't be listed on the Auction House.** Put a locked item in the sell slot, in Blizzard's Sell
+  tab or Auctionator's Selling tab, and it's taken out again at once. An item also can't be listed
+  while another one of it in your bags is locked: a listing can take more than the stack you
+  picked (Auctionator lists all of them by default), so the locked one could go too.
+- **Tells you why.** Trying to sell, list, disenchant or destroy a locked item shows red error text
   ("… is locked, so it can't be sold.") and plays an error sound you can choose (or turn off).
 - **Easy to see.** A padlock marks locked items in Blizzard's bags, bank and character window, in
-  EllesmereUI Bags and in Baganator, and the item tooltip says "Locked" whatever bag addon you
+  EllesmereUI Bags, Baganator and Bagnon, and the item tooltip says "Locked" whatever bag addon you
   use. Its corner, size and color are up to you.
 - **No setup.** Works with the default UI and with bag addons built on Blizzard's item buttons.
 
@@ -38,10 +42,15 @@ Lock your items so they can't be sold to a vendor, destroyed or disenchanted by 
 | Command | |
 | --- | --- |
 | `/ilf` | Open the options (`/itemlock` works too) |
-| `/ilf debug` | Show what the addon does at vendors (item IDs and counts only) |
+| `/ilf list` | Open the list of locked items |
+| `/ilf debug` | Show what the addon does at vendors and the Auction House (item IDs and counts only) |
 
 **Esc > Options > AddOns > ItemLockForever** has:
 
+- **Locked items** (a page of its own, under ItemLockForever; the first row's Show list button
+  opens it): every lock, with where the item is (bags, worn, bank, or elsewhere: the mail,
+  another character, or the bank while you're away) and an Unlock button for each. Items locked
+  on their own are listed on every character; every-stack locks are the current character's.
 - **Lock with click**: Alt + Left Click (default), Alt + Right Click, Ctrl + Alt + Right Click,
   Ctrl + Right Click, or Off.
 - **Hold to unlock** (off by default): unlocking takes holding the click, or the key, for a
@@ -68,10 +77,17 @@ post; the key binding still works there.
 - While a vendor window is open, or Disenchant waits for a target, locked items can't be used,
   equipped or moved either. Unlock an item (or leave the vendor) to use it.
 - The buy-back can only reach the vendor's buyback list, which holds the last 12 sales.
-- Locks protect against selling, destroying and disenchanting only. Mailing and trading still
-  work, and addons that delete items themselves (without the game's destroy dialog) aren't
+- Locks protect against selling, listing, destroying and disenchanting only. Mailing and trading
+  still work, and addons that delete items themselves (without the game's destroy dialog) aren't
   stopped.
+- At the Auction House a locked item shows in the sell slot for a moment before it's taken out.
+  Blizzard's Sell tab and Auctionator are covered; other auction addons with their own sell slot
+  aren't.
 - The gamepad UI's destroy dialog isn't covered.
+- Bagnon's and Baganator's views of other characters' bags, and of the bank while you're away,
+  show no padlocks: they show saved records, not the items themselves.
+- In Bagnon, Alt+Left Click also flashes every copy of the item (Bagnon's Flash Find, on by
+  default). Turn it off in Bagnon's options, or pick another click, if that's in the way.
 
 ## Privacy
 
@@ -91,7 +107,8 @@ scripts/package.sh     # build a zip for manual installation
 
 - `ItemLockForever/` is the addon; only this folder ships. `tests/` runs the addon in a sandbox
   against a fake game client (`tests/harness/`): bags, the bank, worn items, the cursor, a vendor
-  with its buyback list, Blizzard's item buttons and EllesmereUI Bags. `docs/API-NOTES.md`
+  with its buyback list, the Auction House, Blizzard's item buttons, EllesmereUI Bags, Baganator,
+  Bagnon and Auctionator. `docs/API-NOTES.md`
   records the client facts the code relies on; `docs/VERIFICATION.md` is the in-game checklist.
 - Code is formatted with StyLua and must pass luacheck. Every bug fix gets a regression test.
 - Releases: tag `vX.Y.Z` and push; the GitHub workflow packages with the BigWigs packager and
