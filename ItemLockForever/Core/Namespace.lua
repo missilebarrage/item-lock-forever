@@ -20,7 +20,6 @@ ns.Destroy = {}
 ns.Auction = {}
 ns.Tooltip = {}
 ns.Badges = {}
-ns.LockedItems = {}
 ns.Options = {}
 
 --- Localized strings. Locales/enUS.lua is the source of truth; a missing key shows the key itself.

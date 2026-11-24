@@ -87,26 +87,6 @@ L.BAGANATOR_WIDGET = "ItemLockForever padlock"
 L.OPTION_ICON_SIZE = "Lock icon size"
 L.OPTION_ICON_SIZE_TOOLTIP = "The size of the padlock on item slots."
 L.OPTIONS_IN_COMBAT = "Options can't be opened during combat."
-L.OPTION_LOCKED_ITEMS = "Locked items"
-L.OPTION_LOCKED_ITEMS_BUTTON = "Show list"
-L.OPTION_LOCKED_ITEMS_TOOLTIP = "Everything that's locked, with a button to unlock each one."
-
--- Locked items list.
-L.LOCKED_ITEMS = "Locked items"
-L.LOCKED_ITEMS_HELP =
-	"Everything ItemLockForever keeps locked. An item locked on its own stays locked on every character; every-stack locks are this character's. Elsewhere means the mail, another character, or the bank while you're away."
-L.LOCKED_COUNT = "%d locks"
-L.LOCKED_COUNT_ONE = "1 lock"
-L.LOCKED_NONE = "Nothing is locked yet."
-L.UNLOCK = "Unlock"
-L.EVERY_STACK = "Every stack (this character)"
-L.WHERE_BAGS = "Bags"
-L.WHERE_WORN = "Worn"
-L.WHERE_BANK = "Bank"
-L.WHERE_ELSEWHERE = "Elsewhere"
-L.WHERE_STACK = "%s, stack of %d"
-L.ITEM_NUMBER = "Item %d"
-
 -- Diagnostics.
 L.DEBUG_ON = "Debug output on (item IDs and counts only). /ilf debug turns it off."
 L.DEBUG_OFF = "Debug output off."

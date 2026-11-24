@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1 — 2026-11-24
+
+- Removed the Locked items list (its options page, the Show list button and `/ilf list`).
+
 ## 0.3.0 — 2026-11-24
 
 - Auction House: locked items can't be listed. A locked item put in the sell slot (Blizzard's Sell

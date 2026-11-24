@@ -407,22 +407,7 @@ function Wow.CreateEnvironment(world)
 		OpenToCategory = function(categoryID)
 			world.openedSettings[#world.openedSettings + 1] = categoryID
 		end,
-		-- A page the addon draws itself; the panel shows the frame when the page is picked.
-		RegisterCanvasLayoutSubcategory = function(parent, frame, name)
-			local subcategory = { parent = parent, frame = frame, name = name }
-			function subcategory:GetID()
-				return 78
-			end
-			parent.subcategories = parent.subcategories or {}
-			parent.subcategories[#parent.subcategories + 1] = subcategory
-			return subcategory, {}
-		end,
 	}
-	-- A row with a button, as on Blizzard's settings pages (Blizzard_SettingControls.lua).
-	env.CreateSettingsButtonInitializer = function(name, buttonText, buttonClick, tooltip, addSearchTags)
-		assert(addSearchTags ~= nil, "CreateSettingsButtonInitializer: addSearchTags is required")
-		return { kind = "button", name = name, buttonText = buttonText, click = buttonClick, tooltip = tooltip }
-	end
 
 	-- Key bindings: world.bindingActions[action] = index (the client knows the action),
 	-- world.boundKeys[action] = key.

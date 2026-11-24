@@ -258,29 +258,6 @@ as installed on Forever (2026-11-18); the Auctionator lines cited are unchanged 
 - Unknown until tested in game: whether `IsSellItemValid` turns down an item the game holds, and
   which stacks the server takes when a listing is bigger than the stack picked (assumed: any).
 
-## Locked items page
-
-From the Forever UI source (build 1.60.1.71037):
-
-- `Settings.RegisterCanvasLayoutSubcategory(category, frame, name)` returns the subcategory and its
-  layout (`Blizzard_Settings_Shared/Blizzard_Settings.lua` 166, through `SettingsInbound` 99). When
-  the page is picked the panel parents the frame to its canvas, anchors it to fill it (unless the
-  layout has anchor points), shows it and calls `frame:OnRefresh()` if there is one
-  (`Blizzard_SettingsPanel.lua`, `DisplayLayout`). `OnDefault` would run for the Defaults button:
-  the page has none, so Defaults never unlocks anything (`Blizzard_ImplementationReadme.lua`).
-- `CreateSettingsButtonInitializer(name, buttonText, buttonClick, tooltip, addSearchTags)` is a row
-  with a button (`Blizzard_SettingControls.lua` 1040; `addSearchTags` must be given, 1045), whose
-  click is set straight as the button's `OnClick` (979). `Settings.OpenToCategory(categoryID)` goes
-  through `C_SettingsUtil.OpenSettingsPanel` (`Blizzard_Settings.lua` 144). TimmyUI opens its own
-  subcategory pages the same way.
-- `GameTooltip:SetItemByID` and `SetItemByGUID` are TooltipDataHandler accessors
-  (`Blizzard_SharedXMLGame/Tooltip/TooltipDataHandler.lua` 525, 601).
-- `C_Item.GetItemNameByID`, `GetItemIconByID`, `GetItemQualityByID`, `GetItemQualityColor` (r, g, b
-  and a quality string), `RequestLoadItemDataByID` and `GetStackCount` are documented in
-  `ItemDocumentation.lua`; a requested item's data comes with `GET_ITEM_INFO_RECEIVED`.
-- Unknown until tested in game: whether `C_Item.GetItemLocation(guid)` finds bank items while
-  you're away from the bank (if not, they're listed as Elsewhere).
-
 ## Options and key binding
 
 - `CreateKeybindingEntryInitializer(bindingIndex, search)`

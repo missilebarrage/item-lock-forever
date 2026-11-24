@@ -1,15 +1,13 @@
 local _, ns = ...
 
---- Esc > Options > AddOns > ItemLockForever: a button to the list of locked items (a page of its
---- own under this one, LockedItems), the click that locks items, Hold to unlock, the key binding
---- (the same one as on the Key Bindings page; the game saves bindings when the panel closes), the
---- lock, unlock and error sounds, and the padlock's corner, size and color.
+--- Esc > Options > AddOns > ItemLockForever: the click that locks items, Hold to unlock, the key
+--- binding (the same one as on the Key Bindings page; the game saves bindings when the panel
+--- closes), the lock, unlock and error sounds, and the padlock's corner, size and color.
 ---@class ItemLockForeverOptions
 local Options = ns.Options
 local Database = ns.Database
 local Events = ns.Events
 local Input = ns.Input
-local LockedItems = ns.LockedItems
 local Sounds = ns.Sounds
 local L = ns.L
 
@@ -49,18 +47,6 @@ local function Dropdown(key, name, tooltip, entries)
 end
 
 local function Build(layout)
-	if CreateSettingsButtonInitializer then
-		layout:AddInitializer(
-			CreateSettingsButtonInitializer(
-				L.OPTION_LOCKED_ITEMS,
-				L.OPTION_LOCKED_ITEMS_BUTTON,
-				LockedItems.Open,
-				L.OPTION_LOCKED_ITEMS_TOOLTIP,
-				true
-			)
-		)
-	end
-
 	local clicks = {}
 	for _, value in ipairs(Database.CHOICES.click) do
 		local combo = Input.COMBOS[value]
@@ -130,9 +116,6 @@ function Options.Init()
 	category, layout = Settings.RegisterVerticalLayoutCategory(ns.TITLE)
 	Build(layout)
 	Settings.RegisterAddOnCategory(category)
-	if Settings.RegisterCanvasLayoutSubcategory then
-		LockedItems.Register(category)
-	end
 end
 
 --- Opens Esc > Options > AddOns > ItemLockForever (not possible during combat).

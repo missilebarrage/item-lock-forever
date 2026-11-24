@@ -24,6 +24,5 @@ Features\Destroy.lua
 Features\Auction.lua
 UI\Tooltip.lua
 UI\Badges.lua
-UI\LockedItems.lua
 UI\Options.lua
 Init.lua

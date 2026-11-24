@@ -42,15 +42,10 @@ disenchanted by accident, for **World of Warcraft: Forever**.
 | Command | |
 | --- | --- |
 | `/ilf` | Open the options (`/itemlock` works too) |
-| `/ilf list` | Open the list of locked items |
 | `/ilf debug` | Show what the addon does at vendors and the Auction House (item IDs and counts only) |
 
 **Esc > Options > AddOns > ItemLockForever** has:
 
-- **Locked items** (a page of its own, under ItemLockForever; the first row's Show list button
-  opens it): every lock, with where the item is (bags, worn, bank, or elsewhere: the mail,
-  another character, or the bank while you're away) and an Unlock button for each. Items locked
-  on their own are listed on every character; every-stack locks are the current character's.
 - **Lock with click**: Alt + Left Click (default), Alt + Right Click, Ctrl + Alt + Right Click,
   Ctrl + Right Click, or Off.
 - **Hold to unlock** (off by default): unlocking takes holding the click, or the key, for a

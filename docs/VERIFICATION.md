@@ -142,24 +142,6 @@ With Bagnon on (and EllesmereUI Bags off, so Bagnon shows the bags):
 Fallback: if no padlock shows, Bagnon renamed `Bagnon.Item.Update` or the frame ids (`inventory`,
 `bank`): hook what calls the buttons' update instead.
 
-## 6e. Locked items list (0.3.0)
-
-1. Lock a piece of gear in the bags, a stack, something you wear and something in the bank, and
-   lock every stack of an item in EllesmereUI's All Items view. Open Esc > Options > AddOns >
-   ItemLockForever: the first row has a Show list button, and Locked items sits under
-   ItemLockForever in the list on the left. Both open the page; so does `/ilf list`.
-2. Expected: one row per lock, every-stack locks first, then Bags, Worn, Bank; names in their
-   quality colors, stacks with their size, the summary counts them. Hovering a row shows the item.
-3. Mail a locked item to an alt: on this character it's listed as Elsewhere; on the alt, once the
-   mail is taken, it shows under Bags.
-4. Click Unlock on a few rows: the row goes, the unlock sound plays, the padlock in the bags goes.
-   Unlock an every-stack row: every stack of it is unlocked.
-5. With the page open, lock another item (Alt+Click in the bags): it appears.
-6. Nothing locked: "Nothing is locked yet."
-
-Fallback: if Show list or `/ilf list` does nothing, open the page from the list on the left and
-check `Settings.OpenToCategory` for subcategories.
-
 ## 7. Options and key binding
 
 Hold to unlock (turn it on first):

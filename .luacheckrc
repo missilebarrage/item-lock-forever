@@ -29,7 +29,6 @@ files["ItemLockForever/**/*.lua"] = {
 		"UIErrorsFrame",
 		"Settings",
 		"CreateKeybindingEntryInitializer",
-		"CreateSettingsButtonInitializer",
 		"MinimalSliderWithSteppersMixin",
 		"TooltipDataProcessor",
 		"InCombatLockdown",

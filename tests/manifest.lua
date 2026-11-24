@@ -9,6 +9,5 @@ return {
 	"auction_test.lua",
 	"feedback_test.lua",
 	"display_test.lua",
-	"list_test.lua",
 	"perf_test.lua",
 }

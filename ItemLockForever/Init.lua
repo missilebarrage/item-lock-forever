@@ -1,7 +1,6 @@
 local addonName, ns = ...
 
--- Startup wiring and the slash command: /ilf opens the options, /ilf list the locked items,
--- /ilf debug toggles diagnostics.
+-- Startup wiring and the slash command: /ilf opens the options, /ilf debug toggles diagnostics.
 local Events = ns.Events
 local L = ns.L
 
@@ -12,10 +11,6 @@ SlashCmdList.ITEMLOCKFOREVER = function(message)
 	if command == "debug" then
 		ns.debug = not ns.debug
 		ns.Print(ns.debug and L.DEBUG_ON or L.DEBUG_OFF)
-		return
-	end
-	if command == "list" then
-		ns.LockedItems.Open()
 		return
 	end
 	ns.Options.Open()
